@@ -1,0 +1,12 @@
+{
+  "name": "exam-buddy",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes serve .",
+    "setup": "node scripts/setup-supabase.mjs"
+  },
+  "devDependencies": {
+    "pg": "^8.16.0"
+  }
+}

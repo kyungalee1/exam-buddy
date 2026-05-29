@@ -1,0 +1,14 @@
+# 비밀키 / 로컬 설정
+config.local.js
+.env
+.env.local
+.env.setup
+.vercel
+
+# 의존성
+node_modules/
+
+# OS / 에디터
+.DS_Store
+Thumbs.db
+*.log

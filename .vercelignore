@@ -1,0 +1,10 @@
+study-app/
+app/
+components/
+mcps/
+agent-transcripts/
+terminals/
+scripts/
+node_modules/
+.env*
+config.local.js
