@@ -297,7 +297,7 @@
       .chart-panel-desc { font-size: 0.64rem; color: var(--muted); margin-top: 1px; }
       .chart-wrap { position: relative; height: 240px; }
       .chart-wrap.tall { height: 260px; }
-      .chart-wrap.compact { height: 200px; }
+      .chart-wrap.compact { height: 200px; min-height: 160px; }
       .chart-empty {
         position: absolute; inset: 0; display: grid; place-items: center;
         text-align: center; color: var(--muted); font-size: 0.78rem; font-weight: 600;
@@ -692,7 +692,6 @@
           <div class="analytics-header">
             <div>
               <p class="section-title">📊 내 통계</p>
-              <p class="section-sub">완료한 공부만 집계해요</p>
             </div>
           </div>
           <div id="statsExamTabs" class="exam-picker"></div>
@@ -758,7 +757,7 @@
               <tbody id="listTableBody"></tbody>
             </table>
           </div>
-          <div id="listEmpty" class="list-empty hidden">현재 시험 과목의 공부 계획이 아직 없어요.</div>
+          <div id="listEmpty" class="list-empty hidden">목록 데이터가 없어요.</div>
         </section>
       </div>
     </div>
@@ -2020,7 +2019,8 @@ create trigger exam_records_updated_at before update on public.exam_records for 
         return Array.from({ length: count }, (_, i) => CHART_PALETTE[i % CHART_PALETTE.length].main);
       }
 
-      function doughnutOptions(cutout = "62%") {
+      function doughnutOptions(cutout = "62%", labelCount = 0) {
+        const many = labelCount > 5;
         return {
           responsive: true,
           maintainAspectRatio: false,
@@ -2029,8 +2029,10 @@ create trigger exam_records_updated_at before update on public.exam_records for 
             legend: {
               position: "bottom",
               labels: {
-                boxWidth: 10, boxHeight: 10, useBorderRadius: true, borderRadius: 4,
-                padding: 14, font: { size: 10, weight: "700" }, color: "#1a0a3c",
+                boxWidth: 8, boxHeight: 8, useBorderRadius: true, borderRadius: 3,
+                padding: many ? 6 : 10,
+                font: { size: many ? 8 : 10, weight: "700" },
+                color: "#1a0a3c",
               },
             },
             tooltip: {
@@ -2040,6 +2042,13 @@ create trigger exam_records_updated_at before update on public.exam_records for 
             },
           },
         };
+      }
+
+      function setChartWrapHeight(canvasId, subjectCount, opts = {}) {
+        const { min = 160, perRow = 34, max = 380, extra = 40 } = opts;
+        const wrap = $(canvasId)?.parentElement;
+        if (!wrap) return;
+        wrap.style.height = `${Math.max(min, Math.min(max, subjectCount * perRow + extra))}px`;
       }
 
       function barOptions(horizontal = false, maxY = null) {
@@ -2136,8 +2145,11 @@ create trigger exam_records_updated_at before update on public.exam_records for 
         const labels = subjects.map((s) => s.name);
         const timeData = subjects.map((s) => s.totalMin);
         const rateData = subjects.map((s) => s.total ? Math.round((s.done / s.total) * 100) : 0);
+        const n = Math.max(labels.length, 1);
+        setChartWrapHeight("statsTimeChart", n, { min: 180, perRow: 32, max: 360 });
+        setChartWrapHeight("statsRateChart", n, { min: 160, perRow: 32, max: 360 });
         makeHorizontalBarChart("statsTimeChart", "statsTime", labels, timeData, "statsTimeEmpty");
-        makeDoughnutChart("statsRateChart", "statsRate", labels, rateData, "statsRateEmpty", subjects.some((s) => s.total > 0));
+        makeHorizontalBarChart("statsRateChart", "statsRate", labels, rateData, "statsRateEmpty", 100);
       }
 
       function renderListView() {
@@ -2191,11 +2203,7 @@ create trigger exam_records_updated_at before update on public.exam_records for 
         });
         const hasData = rows.length > 0;
         listEmptyEl.classList.toggle("hidden", hasData);
-        if (!hasData) {
-          listEmptyEl.textContent = "목록 데이터가 없어요. 홈에서 계획을 추가한 뒤 저장해 주세요.";
-        } else {
-          listEmptyEl.textContent = "현재 시험 과목의 공부 계획이 아직 없어요.";
-        }
+        if (!hasData) listEmptyEl.textContent = "목록 데이터가 없어요.";
         listTableHeadEl.querySelectorAll("th.sortable").forEach((th) => {
           const key = th.dataset.sort;
           const arrow = key === listSortKey ? (listSortDir === "asc" ? "▲" : "▼") : "↕";
