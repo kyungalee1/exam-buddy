@@ -228,6 +228,15 @@
       }
       .stats-score-panel.hidden { display: none; }
       .stats-score-panel h3 { font-size: 0.82rem; font-weight: 900; margin-bottom: 8px; }
+      .score-summary-grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.72rem;
+      }
+      .score-summary-grid .score-label {
+        display: block; font-size: 0.62rem; color: var(--muted); font-weight: 700; margin-bottom: 2px;
+      }
+      .score-summary-grid strong { font-size: 0.78rem; font-weight: 800; color: var(--text); line-height: 1.35; }
+      .score-summary-grid strong.score-met { color: #059669; }
+      .score-summary-grid strong.score-below { color: #dc2626; }
       .plan-edit-grid {
         display: grid; grid-template-columns: 78px 1.95fr 82px 28px; gap: 4px; align-items: end;
       }
@@ -252,6 +261,62 @@
         gap: 6px;
       }
       .exam-actions-row .btn { width: 100%; }
+      .exam-goals-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+      .exam-goals-grid .goal-cell label {
+        display: block;
+        font-size: 0.62rem;
+        color: var(--muted);
+        font-weight: 700;
+        margin-bottom: 3px;
+      }
+      .exam-goals-grid .goal-cell input {
+        width: 100%;
+        padding: 7px 6px;
+        font-size: 0.78rem;
+        min-width: 0;
+      }
+      .exam-goals-hint {
+        font-size: 0.62rem;
+        color: var(--muted);
+        font-weight: 600;
+        line-height: 1.4;
+        margin-bottom: 10px;
+      }
+      .mom-promise-input {
+        width: 100%;
+        min-height: 72px;
+        resize: vertical;
+        font-family: inherit;
+        font-size: 0.78rem;
+        line-height: 1.45;
+        padding: 8px 10px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #fff;
+      }
+      .mom-promise-home {
+        margin-top: 8px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.18);
+        font-size: 0.72rem;
+        line-height: 1.45;
+        color: #fff;
+      }
+      .mom-promise-home.hidden { display: none; }
+      .mom-promise-home strong {
+        display: block;
+        font-size: 0.68rem;
+        font-weight: 800;
+        margin-bottom: 4px;
+        opacity: 0.95;
+      }
+      .mom-promise-home p { margin: 0; font-weight: 600; white-space: pre-wrap; word-break: break-word; }
 
       .stats-card { padding: 14px; }
       .analytics-header {
@@ -639,6 +704,7 @@
           <input id="examDateInput" type="date" />
           <span id="ddayBadge" class="dday-badge">D-?</span>
         </div>
+        <div id="momPromiseHome" class="mom-promise-home hidden"></div>
       </header>
 
       <div id="viewHome" class="view active">
@@ -886,17 +952,41 @@
             <span style="font-weight:800;font-size:0.78rem">과목 · 목표/실제 점수</span>
             <button id="addSubjectBtn" class="btn ghost small" type="button">+ 과목</button>
           </div>
-          <div id="subjectList" class="subject-list"></div>
-          <div id="scoreSummary" class="score-summary hidden">
-            <div class="score-summary-top">
-              <span>실제 평균 <strong id="scoreAvgActual">-</strong></span>
-              <span>목표 평균 <strong id="scoreAvgTarget">-</strong></span>
-              <label class="score-rank-inline">
-                반 등수
-                <input id="classRankInput" type="number" min="1" placeholder="등" />
-              </label>
+          <section class="settings-section" style="margin-top:10px">
+            <p class="settings-section-title">🎯 시험 목표 · 성적</p>
+            <p class="exam-goals-hint">평균을 비워두면 과목 점수로 자동 계산돼요.</p>
+            <div class="exam-goals-grid">
+              <div class="goal-cell">
+                <label for="targetRankInput">목표 등수</label>
+                <input id="targetRankInput" type="number" min="1" placeholder="등" inputmode="numeric" />
+              </div>
+              <div class="goal-cell">
+                <label for="targetPercentInput">목표 %</label>
+                <input id="targetPercentInput" type="number" min="0" max="100" step="0.1" placeholder="%" />
+              </div>
+              <div class="goal-cell">
+                <label for="targetAverageInput">목표 평균</label>
+                <input id="targetAverageInput" type="number" min="0" max="100" step="0.1" placeholder="점" />
+              </div>
+              <div class="goal-cell">
+                <label for="actualRankInput">실제 등수</label>
+                <input id="actualRankInput" type="number" min="1" placeholder="등" inputmode="numeric" />
+              </div>
+              <div class="goal-cell">
+                <label for="actualPercentInput">실제 %</label>
+                <input id="actualPercentInput" type="number" min="0" max="100" step="0.1" placeholder="%" />
+              </div>
+              <div class="goal-cell">
+                <label for="actualAverageInput">실제 평균</label>
+                <input id="actualAverageInput" type="number" min="0" max="100" step="0.1" placeholder="점" />
+              </div>
             </div>
-          </div>
+          </section>
+          <section class="settings-section" style="margin-top:0">
+            <p class="settings-section-title">💕 엄마랑 약속</p>
+            <textarea id="momPromiseInput" class="mom-promise-input" rows="3" placeholder="예: 중간까지 수학 85점 이상, 매일 1시간 공부하기"></textarea>
+          </section>
+          <div id="subjectList" class="subject-list"></div>
         </section>
         <div class="save-toast in-dialog" data-save-toast>✨ 저장되었어요</div>
       </div>
@@ -988,8 +1078,14 @@ create trigger exam_records_updated_at before update on public.exam_records for 
       const semesterSelect = $("semesterSelect");
       const examTypeSelect = $("examTypeSelect");
       const examDateSettings = $("examDateSettings");
-      const classRankInput = $("classRankInput");
-      const scoreSummaryEl = $("scoreSummary");
+      const targetRankInput = $("targetRankInput");
+      const targetPercentInput = $("targetPercentInput");
+      const targetAverageInput = $("targetAverageInput");
+      const actualRankInput = $("actualRankInput");
+      const actualPercentInput = $("actualPercentInput");
+      const actualAverageInput = $("actualAverageInput");
+      const momPromiseInput = $("momPromiseInput");
+      const momPromiseHomeEl = $("momPromiseHome");
       const statsScorePanelEl = $("statsScorePanel");
       const settingsDialog = $("settingsDialog");
       const cloudSetupDialog = $("cloudSetupDialog");
@@ -1012,7 +1108,13 @@ create trigger exam_records_updated_at before update on public.exam_records for 
           examType: "중간",
           examDate: d.toISOString().slice(0, 10),
           createdAt: Date.now(),
-          classRank: null,
+          targetRank: null,
+          targetPercent: null,
+          actualRank: null,
+          targetAverage: null,
+          actualAverage: null,
+          actualPercent: null,
+          momPromise: "",
           scoreResultsVisible: false,
           calendar: {},
           subjects: [
@@ -1134,56 +1236,123 @@ create trigger exam_records_updated_at before update on public.exam_records for 
         return Number.isInteger(n) ? String(n) : n.toFixed(1);
       }
 
+      function parseOptionalNum(inputEl, opts = {}) {
+        if (!inputEl || inputEl.value === "") return null;
+        let n = Number(inputEl.value);
+        if (!Number.isFinite(n)) return null;
+        if (opts.integer) n = Math.floor(n);
+        if (opts.min != null) n = Math.max(opts.min, n);
+        if (opts.max != null) n = Math.min(opts.max, n);
+        return n;
+      }
+
+      function getSubjectDerivedAverages(ex) {
+        const summary = getExamScoreSummary(ex);
+        if (!summary) return { target: null, actual: null };
+        return { target: summary.avgTarget, actual: summary.avgActual };
+      }
+
+      function getEffectiveAverage(ex, kind) {
+        if (!ex) return null;
+        const derived = getSubjectDerivedAverages(ex);
+        if (kind === "target") return ex.targetAverage != null ? ex.targetAverage : derived.target;
+        if (kind === "actual") return ex.actualAverage != null ? ex.actualAverage : derived.actual;
+        return null;
+      }
+
+      function formatRank(n) {
+        return n != null ? `${n}등` : "-";
+      }
+
+      function formatPercent(n) {
+        return n != null ? `${formatScore(n)}%` : "-";
+      }
+
+      function formatOptionalNum(n, suffix = "") {
+        if (n == null || !Number.isFinite(n)) return "-";
+        return `${formatScore(n)}${suffix}`;
+      }
+
       function applyExamMetaFromControls(ex) {
         if (!ex) return;
-        ex.classRank = classRankInput.value === "" ? null : Math.max(1, Math.floor(Number(classRankInput.value) || 0));
+        ex.targetRank = parseOptionalNum(targetRankInput, { min: 1, integer: true });
+        ex.targetPercent = parseOptionalNum(targetPercentInput, { min: 0, max: 100 });
+        ex.targetAverage = parseOptionalNum(targetAverageInput, { min: 0, max: 100 });
+        ex.actualRank = parseOptionalNum(actualRankInput, { min: 1, integer: true });
+        ex.actualPercent = parseOptionalNum(actualPercentInput, { min: 0, max: 100 });
+        ex.actualAverage = parseOptionalNum(actualAverageInput, { min: 0, max: 100 });
+        ex.momPromise = String(momPromiseInput?.value ?? "").trim();
+      }
+
+      function updateAveragePlaceholders(ex) {
+        const derived = getSubjectDerivedAverages(ex);
+        if (targetAverageInput) {
+          targetAverageInput.placeholder = derived.target != null ? `자동 ${formatScore(derived.target)}점` : "점";
+        }
+        if (actualAverageInput) {
+          actualAverageInput.placeholder = derived.actual != null ? `자동 ${formatScore(derived.actual)}점` : "점";
+        }
       }
 
       function syncExamMetaControls(ex) {
         if (!ex) return;
-        classRankInput.value = ex.classRank ?? "";
+        if (targetRankInput) targetRankInput.value = ex.targetRank ?? "";
+        if (targetPercentInput) targetPercentInput.value = ex.targetPercent ?? "";
+        if (targetAverageInput) targetAverageInput.value = ex.targetAverage ?? "";
+        if (actualRankInput) actualRankInput.value = ex.actualRank ?? "";
+        if (actualPercentInput) actualPercentInput.value = ex.actualPercent ?? "";
+        if (actualAverageInput) actualAverageInput.value = ex.actualAverage ?? "";
+        if (momPromiseInput) momPromiseInput.value = ex.momPromise ?? "";
+        updateAveragePlaceholders(ex);
       }
 
       function renderScoreSummary(ex) {
-        if (!scoreSummaryEl) return;
-        const avgActualEl = $("scoreAvgActual");
-        const avgTargetEl = $("scoreAvgTarget");
-        if (!ex?.scoreResultsVisible) {
-          scoreSummaryEl.classList.add("hidden");
+        if (!ex) return;
+        updateAveragePlaceholders(ex);
+      }
+
+      function renderMomPromiseHome() {
+        if (!momPromiseHomeEl) return;
+        const ex = getActiveExam();
+        const text = (ex?.momPromise || "").trim();
+        if (!text) {
+          momPromiseHomeEl.classList.add("hidden");
+          momPromiseHomeEl.innerHTML = "";
           return;
         }
-        const summary = getExamScoreSummary(ex);
-        if (!summary) {
-          scoreSummaryEl.classList.add("hidden");
-          return;
-        }
-        scoreSummaryEl.classList.remove("hidden");
-        avgActualEl.textContent = `${formatScore(summary.avgActual)}점`;
-        avgActualEl.className = `score-${summary.avgTone}`;
-        avgTargetEl.textContent = `${formatScore(summary.avgTarget)}점`;
-        syncExamMetaControls(ex);
+        momPromiseHomeEl.classList.remove("hidden");
+        momPromiseHomeEl.innerHTML = `<strong>💕 엄마랑 약속</strong><p>${escapeHtml(text)}</p>`;
       }
 
       function renderStatsScorePanel(ex) {
         if (!statsScorePanelEl) return;
-        if (!ex?.scoreResultsVisible) {
+        const hasGoals = ex && (
+          ex.targetRank != null || ex.targetPercent != null || ex.targetAverage != null
+          || ex.actualRank != null || ex.actualPercent != null || ex.actualAverage != null
+          || getSubjectDerivedAverages(ex).actual != null
+        );
+        if (!ex?.scoreResultsVisible && !hasGoals) {
           statsScorePanelEl.classList.add("hidden");
           statsScorePanelEl.innerHTML = "";
           return;
         }
-        const summary = getExamScoreSummary(ex);
-        if (!summary) {
-          statsScorePanelEl.classList.add("hidden");
-          statsScorePanelEl.innerHTML = "";
-          return;
-        }
-        const rankLine = ex.classRank ? ` · 반 ${ex.classRank}등` : "";
+        const targetAvg = getEffectiveAverage(ex, "target");
+        const actualAvg = getEffectiveAverage(ex, "actual");
+        const tone = actualAvg != null && targetAvg != null
+          ? (actualAvg >= targetAvg ? "met" : "below")
+          : "";
         statsScorePanelEl.classList.remove("hidden");
         statsScorePanelEl.innerHTML = `
-          <h3>📝 시험 성적</h3>
-          <div class="score-summary-top">
-            <span>실제 평균 <strong class="score-${summary.avgTone}">${formatScore(summary.avgActual)}점</strong></span>
-            <span>목표 평균 <strong>${formatScore(summary.avgTarget)}점</strong>${rankLine}</span>
+          <h3>🎯 시험 목표 · 성적</h3>
+          <div class="score-summary-grid">
+            <div>
+              <span class="score-label">목표</span>
+              <strong>${formatRank(ex.targetRank)} · ${formatPercent(ex.targetPercent)} · ${formatOptionalNum(targetAvg, "점")}</strong>
+            </div>
+            <div>
+              <span class="score-label">실제</span>
+              <strong class="score-${tone}">${formatRank(ex.actualRank)} · ${formatPercent(ex.actualPercent)} · ${formatOptionalNum(actualAvg, "점")}</strong>
+            </div>
           </div>`;
       }
 
@@ -1207,9 +1376,18 @@ create trigger exam_records_updated_at before update on public.exam_records for 
         };
       }
 
+      function normalizeOptionalNum(v, opts = {}) {
+        if (v === null || v === undefined || v === "") return null;
+        let n = Number(v);
+        if (!Number.isFinite(n)) return null;
+        if (opts.integer) n = Math.floor(n);
+        if (opts.min != null) n = Math.max(opts.min, n);
+        if (opts.max != null) n = Math.min(opts.max, n);
+        return n;
+      }
+
       function normalizeExam(ex) {
-        const rawRank = ex.classRank;
-        const hasRank = rawRank !== null && rawRank !== undefined && rawRank !== "";
+        const rawActualRank = ex.actualRank ?? ex.classRank;
         const calendar = {};
         for (const date in ex.calendar || {}) {
           if (Array.isArray(ex.calendar[date])) {
@@ -1223,7 +1401,13 @@ create trigger exam_records_updated_at before update on public.exam_records for 
           examType: ex.examType === "기말고사" ? "기말" : ex.examType === "중간고사" ? "중간" : (ex.examType || "중간"),
           examDate: ex.examDate || "",
           createdAt: Number(ex.createdAt) || 0,
-          classRank: hasRank ? Math.max(1, Math.floor(Number(rawRank))) : null,
+          targetRank: normalizeOptionalNum(ex.targetRank, { min: 1, integer: true }),
+          targetPercent: normalizeOptionalNum(ex.targetPercent, { min: 0, max: 100 }),
+          targetAverage: normalizeOptionalNum(ex.targetAverage, { min: 0, max: 100 }),
+          actualRank: normalizeOptionalNum(rawActualRank, { min: 1, integer: true }),
+          actualPercent: normalizeOptionalNum(ex.actualPercent, { min: 0, max: 100 }),
+          actualAverage: normalizeOptionalNum(ex.actualAverage, { min: 0, max: 100 }),
+          momPromise: String(ex.momPromise ?? "").trim(),
           scoreResultsVisible: Boolean(ex.scoreResultsVisible),
           calendar,
           subjects: Array.isArray(ex.subjects)
@@ -1672,6 +1856,7 @@ create trigger exam_records_updated_at before update on public.exam_records for 
         headerAvatarEl.src = photo;
         headerNameEl.textContent = profile?.name || "이름을 입력해 주세요";
         renderDday();
+        renderMomPromiseHome();
       }
 
       function renderAvatar() {
@@ -2291,10 +2476,12 @@ create trigger exam_records_updated_at before update on public.exam_records for 
         if (action === "subject-name") s.name = e.target.value;
         if (action === "subject-target") {
           s.targetScore = Number(e.target.value) || 0;
+          updateAveragePlaceholders(ex);
           if (ex.scoreResultsVisible) renderSubjectList();
         }
         if (action === "subject-actual") {
           s.actualScore = e.target.value === "" ? null : Number(e.target.value);
+          updateAveragePlaceholders(ex);
           if (ex.scoreResultsVisible) renderSubjectList();
         }
         if (action === "remove-subject") {
@@ -2413,6 +2600,7 @@ create trigger exam_records_updated_at before update on public.exam_records for 
         ex.semester = semesterSelect.value;
         ex.examType = examTypeSelect.value;
         ex.examDate = examDateSettings.value;
+        applyExamMetaFromControls(ex);
         publishExamScores(ex);
         renderExamTabs();
         renderSubjectList();
@@ -2484,8 +2672,10 @@ create trigger exam_records_updated_at before update on public.exam_records for 
       $("saveNowBtn").addEventListener("click", async () => {
         const ex = getActiveExam();
         if (ex) {
+          applyExamMetaFromControls(ex);
           publishExamScores(ex);
           renderSubjectList();
+          renderMomPromiseHome();
         }
         await saveData();
         notifySaved();
@@ -2494,12 +2684,17 @@ create trigger exam_records_updated_at before update on public.exam_records for 
         if (currentTab === "stats") renderStatsView();
       });
 
-      classRankInput?.addEventListener("input", () => {
-        const ex = getActiveExam();
-        if (!ex) return;
-        applyExamMetaFromControls(ex);
-        markDirty();
-      });
+      [targetRankInput, targetPercentInput, targetAverageInput, actualRankInput, actualPercentInput, actualAverageInput, momPromiseInput]
+        .forEach((el) => {
+          el?.addEventListener("input", () => {
+            const ex = getActiveExam();
+            if (!ex) return;
+            applyExamMetaFromControls(ex);
+            renderMomPromiseHome();
+            if (currentTab === "stats") renderStatsScorePanel(ex);
+            markDirty();
+          });
+        });
 
       $("prevMonthBtn").addEventListener("click", () => {
         const profile = getActiveProfile();
@@ -2618,9 +2813,19 @@ create trigger exam_records_updated_at before update on public.exam_records for 
         }
       });
       $("closeExamSettingsBtn").addEventListener("click", () => {
+        const ex = getActiveExam();
+        if (ex) {
+          ex.grade = gradeSelect.value;
+          ex.semester = semesterSelect.value;
+          ex.examType = examTypeSelect.value;
+          ex.examDate = examDateSettings.value;
+          applyExamMetaFromControls(ex);
+          publishExamScores(ex);
+        }
         examSettingsDialog.close();
         renderHeader();
         renderPlanList();
+        if (currentTab === "stats") renderStatsView();
         if (currentTab === "list") renderListView();
       });
 
