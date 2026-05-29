@@ -1,10 +1,10 @@
-const CACHE = "exam-buddy-v1";
+const CACHE = "exam-buddy-v2";
 const SHELL = [
-  "/",
   "/exam-buddy.html",
   "/manifest.webmanifest",
-  "/assets/icon.svg",
-  "/assets/icon-512.png",
+  "/icon-180.png",
+  "/icon-192.png",
+  "/icon-512.png",
 ];
 
 self.addEventListener("install", (event) => {
@@ -23,28 +23,28 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const { request } = event;
-  const url = new URL(request.url);
-
   if (request.method !== "GET") return;
+
+  const url = new URL(request.url);
   if (url.pathname.startsWith("/api/")) return;
   if (url.hostname.includes("supabase.co")) return;
 
-  if (url.pathname === "/" || url.pathname.endsWith("exam-buddy.html")) {
+  const isAppShell =
+    url.pathname === "/" ||
+    url.pathname === "/exam-buddy.html" ||
+    SHELL.includes(url.pathname);
+
+  if (isAppShell) {
     event.respondWith(
       fetch(request)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((cache) => cache.put("/exam-buddy.html", copy));
+          if (res.ok && (url.pathname === "/" || url.pathname.endsWith("exam-buddy.html"))) {
+            const copy = res.clone();
+            caches.open(CACHE).then((cache) => cache.put("/exam-buddy.html", copy));
+          }
           return res;
         })
         .catch(() => caches.match("/exam-buddy.html"))
-    );
-    return;
-  }
-
-  if (SHELL.some((path) => url.pathname === path || url.pathname.endsWith(path.replace("/", "")))) {
-    event.respondWith(
-      caches.match(request).then((cached) => cached || fetch(request))
     );
   }
 });

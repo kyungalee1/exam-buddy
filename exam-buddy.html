@@ -2,7 +2,19 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#7c3aed" />
+    <meta name="description" content="중학생 시험 준비 · 캘린더 · 과목별 공부" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="시험관리" />
+    <meta name="application-name" content="시험관리" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/icon-180.png" sizes="180x180" />
+    <link rel="apple-touch-icon" href="/icon-192.png" sizes="192x192" />
+    <link rel="apple-touch-icon-precomposed" href="/icon-180.png" />
     <title>김연호!! 시험 관리 App</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
     <!-- 로컬 테스트: config.example.js → config.local.js 복사 후 아래 주석 해제 -->
@@ -27,8 +39,9 @@
         font-family: "Noto Sans KR", sans-serif;
         background: linear-gradient(160deg, #f0e8ff, #fde8f5);
         min-height: 100vh;
+        min-height: 100dvh;
         color: var(--text);
-        padding: 12px 12px calc(var(--nav-h) + 16px);
+        padding: calc(12px + env(safe-area-inset-top)) 12px calc(var(--nav-h) + 16px + env(safe-area-inset-bottom));
         font-size: 0.84rem;
       }
       .app { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
@@ -489,6 +502,32 @@
         bottom: 12px;
         z-index: 5;
       }
+      .install-banner {
+        position: fixed;
+        left: 50%;
+        bottom: calc(var(--nav-h) + 8px);
+        transform: translateX(-50%);
+        z-index: 110;
+        width: min(560px, calc(100vw - 24px));
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: rgba(255,255,255,.97);
+        border: 1px solid #ebe4ff;
+        box-shadow: 0 8px 28px rgba(124,58,237,.18);
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .install-banner.hidden { display: none; }
+      .install-banner-text {
+        flex: 1; font-size: 0.72rem; font-weight: 700; color: var(--text); line-height: 1.45;
+      }
+      .install-banner-text strong { color: var(--primary); }
+      .install-banner-close {
+        border: none; background: #f3f0ff; color: var(--muted);
+        width: 28px; height: 28px; border-radius: 8px; cursor: pointer; flex-shrink: 0;
+        font-weight: 900;
+      }
       .list-card { padding: 14px; }
       .list-table-wrap {
         overflow: hidden; border: 1px solid #ebe4ff; border-radius: 14px; background: #fff;
@@ -697,6 +736,11 @@
       </div>
     </div>
 
+    <div id="installBanner" class="install-banner hidden" role="note">
+      <p class="install-banner-text" id="installBannerText"></p>
+      <button id="closeInstallBannerBtn" class="install-banner-close" type="button" aria-label="닫기">×</button>
+    </div>
+
     <nav class="bottom-nav">
       <div class="bottom-nav-inner">
         <button class="nav-btn active" type="button" data-tab="home">
@@ -838,6 +882,7 @@
     <script>
       const LOCAL_FALLBACK_KEY = "nae-siheom-jjakkkung-offline-v4";
       const SUPABASE_CONFIG_KEY = "exam-buddy-supabase-config";
+      const INSTALL_HINT_KEY = "exam-buddy-install-hint-dismissed";
       const CONFIG_ENDPOINT = "/api/config";
       const SETUP_SQL = `-- exam-buddy: SQL Editor에 붙여넣고 Run
 create table if not exists public.exam_records (
@@ -2557,6 +2602,44 @@ create trigger exam_records_updated_at before update on public.exam_records for 
         openCloudSetupDialog("connection-failed", "클라우드 연결을 설정해 주세요.");
       });
 
+      function isStandaloneApp() {
+        return window.matchMedia("(display-mode: standalone)").matches
+          || window.navigator.standalone === true;
+      }
+
+      function isMobileDevice() {
+        return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+          || (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
+      }
+
+      function showInstallHint() {
+        const banner = $("installBanner");
+        const textEl = $("installBannerText");
+        if (!banner || !textEl || isStandaloneApp()) return;
+        if (localStorage.getItem(INSTALL_HINT_KEY) === "1") return;
+        if (!isMobileDevice()) return;
+
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        textEl.innerHTML = isIOS
+          ? "📲 <strong>Safari</strong>에서만 앱처럼 설치돼요.<br />공유(↑) → <strong>홈 화면에 추가</strong> → 기존 바로가기는 삭제 후 다시 추가해 주세요."
+          : isAndroid
+            ? "📲 Chrome 메뉴(⋮) → <strong>앱 설치</strong> 또는 <strong>홈 화면에 추가</strong><br />아이콘이 안 보이면 한번 삭제 후 다시 설치해 주세요."
+            : "📲 브라우저 메뉴 → <strong>홈 화면에 추가</strong> 또는 <strong>앱 설치</strong>";
+        banner.classList.remove("hidden");
+      }
+
+      $("closeInstallBannerBtn")?.addEventListener("click", () => {
+        localStorage.setItem(INSTALL_HINT_KEY, "1");
+        $("installBanner")?.classList.add("hidden");
+      });
+
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/sw.js").catch(() => {});
+        });
+      }
+
       async function boot() {
         setSyncStatus("연결 준비 중…", "idle");
         const offlineState = loadFromLocalFallback();
@@ -2582,6 +2665,7 @@ create trigger exam_records_updated_at before update on public.exam_records for 
           console.error(e);
         }
         render();
+        showInstallHint();
       }
       boot();
     </script>

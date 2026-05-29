@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "npx --yes serve .",
+    "build": "node scripts/copy-icons.mjs",
+    "dev": "npm run build && npx --yes serve .",
     "setup": "node scripts/setup-supabase.mjs"
   },
   "devDependencies": {
