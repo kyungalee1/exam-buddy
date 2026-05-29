@@ -61,33 +61,29 @@
         border: 2px solid rgba(255,255,255,.5); flex-shrink: 0;
       }
       .header-profile-text {
-        display: flex; flex-direction: row; align-items: center; gap: 8px;
-        min-width: 0; flex: 1; padding-top: 3px;
+        display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+        gap: 5px; min-width: 0; flex: 1; padding-top: 0;
       }
       .header-name {
-        font-size: 0.88rem; font-weight: 800; line-height: 1.2;
-        margin: 0; opacity: .95; flex-shrink: 0;
+        font-size: 0.88rem; font-weight: 800; line-height: 1.25;
+        margin: 0; opacity: .95; width: 100%;
       }
       .header-exam-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        margin-top: 0;
-        margin-left: auto;
-        padding: 6px 12px;
-        border-radius: 999px;
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 5px 10px;
+        border-radius: 10px;
         background: #fff;
         color: var(--primary);
-        font-size: 0.76rem;
-        font-weight: 900;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+        font-size: 0.72rem;
+        font-weight: 800;
+        line-height: 1.35;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
         border: 2px solid rgba(255, 255, 255, 0.85);
-        min-width: 0;
-        max-width: min(100%, 220px);
-        flex-shrink: 1;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: normal;
+        word-break: keep-all;
+        overflow: visible;
       }
       .header-exam-badge.hidden { display: none; }
       .header-top h1 { font-size: 1.05rem; font-weight: 900; line-height: 1.2; }
@@ -103,16 +99,6 @@
         background: #fff; color: var(--primary); font-weight: 900; font-size: 0.82rem;
         padding: 5px 10px; border-radius: 999px; white-space: nowrap;
       }
-      .sync-status {
-        width: 100%; margin-top: 6px; font-size: 0.62rem; font-weight: 700;
-        opacity: .9; text-align: right;
-      }
-      .sync-status[data-tone="ok"] { color: #d1fae5; }
-      .sync-status[data-tone="warn"] { color: #fef3c7; }
-      .sync-status[data-tone="err"] { color: #fecaca; }
-      .sync-status[data-tone="idle"] { color: rgba(255,255,255,.75); }
-      .sync-status[data-tone="warn"],
-      .sync-status[data-tone="err"] { cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 
       .btn {
         border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-family: inherit;
@@ -245,10 +231,27 @@
       .plan-edit-grid {
         display: grid; grid-template-columns: 78px 1.95fr 82px 28px; gap: 4px; align-items: end;
       }
-      .exam-edit-row {
-        display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto auto; gap: 4px; align-items: center; margin-bottom: 8px;
+      .exam-edit-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+        margin-bottom: 8px;
       }
-      .exam-actions { display: flex; gap: 4px; }
+      .exam-edit-grid select,
+      .exam-edit-grid input[type=date] {
+        min-width: 0;
+        width: 100%;
+        font-size: 0.72rem;
+        padding: 7px 6px;
+      }
+      .exam-edit-grid .exam-date-input { grid-column: 1 / -1; }
+      .exam-actions-row {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+      .exam-actions-row .btn { width: 100%; }
 
       .stats-card { padding: 14px; }
       .analytics-header {
@@ -351,9 +354,26 @@
       .cal-header .month-nav { flex-shrink: 0; }
       .subject-list { display: flex; flex-direction: column; gap: 6px; }
 
-      dialog { width: min(560px, 96vw); border: none; border-radius: var(--radius); padding: 0; }
+      dialog {
+        width: 100%; max-width: 100%; height: 100%; max-height: 100%;
+        margin: 0; border: none; border-radius: 0; padding: 0;
+      }
       dialog::backdrop { background: rgba(15,0,40,.5); }
-      .modal { padding: 12px; max-height: 92vh; overflow-y: auto; position: relative; }
+      .modal {
+        width: 100%; min-height: 100%; box-sizing: border-box;
+        padding: calc(14px + env(safe-area-inset-top)) 14px calc(14px + env(safe-area-inset-bottom));
+        max-height: none; overflow-y: auto; position: relative;
+      }
+      @media (min-width: 520px) {
+        dialog {
+          width: min(560px, 96vw); height: auto; max-height: 92vh;
+          margin: auto; border-radius: var(--radius);
+        }
+        .modal {
+          min-height: 0; max-height: 92vh;
+          padding: 14px;
+        }
+      }
       .modal-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
       .modal-top h2 { font-size: 1rem; font-weight: 900; }
       .settings-section {
@@ -560,31 +580,39 @@
         background: #faf8ff; border-radius: 12px; font-weight: 700;
       }
       .subject-status-card { padding: 12px 14px; }
-      .subject-status-list { display: flex; flex-direction: column; gap: 8px; }
+      .subject-status-list { display: flex; flex-direction: column; gap: 6px; }
       .subject-status-row {
-        display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center;
-        padding: 10px 12px; border-radius: 12px; background: #faf8ff; border: 1px solid var(--line);
+        display: grid;
+        grid-template-columns: minmax(2.8rem, auto) minmax(3.2rem, auto) 1fr;
+        gap: 6px;
+        align-items: center;
+        padding: 8px 10px;
+        border-radius: 10px;
+        background: #faf8ff;
+        border: 1px solid var(--line);
+        min-height: 36px;
       }
       .subject-status-row.weak { background: #fef2f2; border-color: #fecaca; }
       .subject-status-row.good { background: #ecfdf5; border-color: #a7f3d0; }
       .subject-status-row.none { background: #f9fafb; border-color: #e5e7eb; }
-      .subject-status-name { font-weight: 900; font-size: 0.82rem; }
-      .subject-status-meta { font-size: 0.68rem; color: var(--muted); font-weight: 600; }
+      .subject-status-name {
+        font-weight: 900; font-size: 0.78rem; white-space: nowrap;
+      }
       .subject-status-badge {
-        justify-self: end; padding: 4px 10px; border-radius: 999px;
-        font-size: 0.68rem; font-weight: 800; white-space: nowrap;
-        min-width: 7.5rem; text-align: center;
+        padding: 3px 6px; border-radius: 999px;
+        font-size: 0.6rem; font-weight: 800; white-space: nowrap;
+        text-align: center; line-height: 1.2;
       }
       .subject-status-badge.weak { background: #fee2e2; color: #991b1b; }
       .subject-status-badge.ok { background: #ede9fe; color: #6d28d9; }
       .subject-status-badge.good { background: #d1fae5; color: #065f46; }
       .subject-status-badge.none { background: #f3f4f6; color: #6b7280; }
       .subject-status-bar {
-        grid-column: 1 / -1; height: 6px; border-radius: 999px; background: #ede9fe; overflow: hidden;
+        height: 8px; border-radius: 999px; background: #ede9fe; overflow: hidden; min-width: 0;
       }
       .subject-status-bar > span {
         display: block; height: 100%; border-radius: 999px; background: var(--primary);
-        transition: width .25s ease;
+        transition: width .25s ease; min-width: 2px;
       }
       .subject-status-bar.weak > span { background: #ef4444; }
       .subject-status-bar.good > span { background: #10b981; }
@@ -610,7 +638,6 @@
           <label for="examDateInput">📆 시험일</label>
           <input id="examDateInput" type="date" />
           <span id="ddayBadge" class="dday-badge">D-?</span>
-          <p id="syncStatus" class="sync-status" data-tone="idle" title="클라우드 연결 상태">연결 준비 중…</p>
         </div>
       </header>
 
@@ -781,7 +808,6 @@
 
         <div class="settings-action-wrap">
           <button id="openExamSettingsBtn" class="btn primary settings-wide-btn" type="button">📝 시험 설정</button>
-          <button id="openCloudSetupBtn" class="btn ghost settings-wide-btn" type="button">☁️ 클라우드 연결</button>
         </div>
         <div class="save-toast in-dialog" data-save-toast>✨ 저장되었어요</div>
       </div>
@@ -847,12 +873,12 @@
             <button id="addExamBtn" class="btn primary small" type="button">+ 시험</button>
           </div>
           <div id="examTabs" class="exam-picker"></div>
-          <div class="exam-edit-row">
-            <select id="gradeSelect"><option>중1</option><option>중2</option><option>중3</option></select>
-            <select id="semesterSelect"><option>1학기</option><option>2학기</option></select>
-            <select id="examTypeSelect"><option>중간</option><option>기말</option></select>
-            <input id="examDateSettings" type="date" title="시험일" />
-            <div class="exam-actions">
+          <div class="exam-edit-grid">
+            <select id="gradeSelect" aria-label="학년"><option>중1</option><option>중2</option><option>중3</option></select>
+            <select id="semesterSelect" aria-label="학기"><option>1학기</option><option>2학기</option></select>
+            <select id="examTypeSelect" aria-label="시험"><option>중간</option><option>기말</option></select>
+            <input id="examDateSettings" class="exam-date-input" type="date" title="시험일" aria-label="시험일" />
+            <div class="exam-actions-row">
               <button id="saveExamBtn" class="btn primary small" type="button">저장</button>
               <button id="removeExamBtn" class="btn danger small" type="button">삭제</button>
             </div>
@@ -956,7 +982,6 @@ create trigger exam_records_updated_at before update on public.exam_records for 
       const listTableBodyEl = $("listTableBody");
       const listEmptyEl = $("listEmpty");
       const saveToastEl = $("saveToast");
-      const syncStatusEl = $("syncStatus");
       const avatarPreview = $("avatarPreview");
       const profileNameEl = $("profileName");
       const photoInputEl = $("photoInput");
@@ -1314,11 +1339,7 @@ create trigger exam_records_updated_at before update on public.exam_records for 
         } catch { return null; }
       }
 
-      function setSyncStatus(text, tone = "idle") {
-        if (!syncStatusEl) return;
-        syncStatusEl.textContent = text;
-        syncStatusEl.dataset.tone = tone;
-      }
+      function setSyncStatus() {}
 
       function loadStoredAppConfig() {
         try {
@@ -1612,14 +1633,24 @@ create trigger exam_records_updated_at before update on public.exam_records for 
       }
 
       function renderHeaderExamBadge() {
-        const latest = getLatestExam();
-        if (!latest) {
+        const active = getActiveExam();
+        if (!active) {
           headerExamLabelEl.textContent = "";
           headerExamLabelEl.classList.add("hidden");
           return;
         }
         headerExamLabelEl.classList.remove("hidden");
-        headerExamLabelEl.textContent = examLabel(latest);
+        headerExamLabelEl.textContent = `시험 · ${examLabel(active)}`;
+      }
+
+      function scheduleHeaderReflow() {
+        requestAnimationFrame(() => {
+          renderHeader();
+          requestAnimationFrame(() => renderHeader());
+        });
+        if (document.fonts?.ready) {
+          document.fonts.ready.then(() => renderHeader()).catch(() => {});
+        }
       }
 
       function renderDday() {
@@ -1844,24 +1875,39 @@ create trigger exam_records_updated_at before update on public.exam_records for 
         return nameMap;
       }
 
+      function getSubjectTimeStats(exam) {
+        const stats = {};
+        for (const s of exam?.subjects || []) {
+          stats[s.id] = { name: s.name, plannedMin: 0, doneMin: 0 };
+        }
+        const cal = ensureExamCalendar(exam);
+        for (const date in cal) {
+          for (const plan of cal[date] || []) {
+            if (!stats[plan.subjectId]) continue;
+            const min = Number(plan.durationMin) || 0;
+            stats[plan.subjectId].plannedMin += min;
+            if (plan.done) stats[plan.subjectId].doneMin += min;
+          }
+        }
+        return stats;
+      }
+
       function getSubjectStatusRows(profile = getActiveProfile(), exam = getActiveExam(profile)) {
-        const stats = getExamSubjectStats(profile, exam);
-        const values = Object.values(stats);
-        const avgMin = values.length
-          ? values.reduce((sum, st) => sum + st.totalMin, 0) / values.length
-          : 0;
+        const timeStats = getSubjectTimeStats(exam);
         return (exam?.subjects || []).map((s) => {
-          const st = stats[s.id] || { name: s.name, totalMin: 0, done: 0, total: 0 };
-          const rate = st.total ? Math.round((st.done / st.total) * 100) : 0;
+          const st = timeStats[s.id] || { name: s.name, plannedMin: 0, doneMin: 0 };
+          const rate = st.plannedMin > 0
+            ? Math.min(100, Math.round((st.doneMin / st.plannedMin) * 100))
+            : 0;
           let status = "ok";
           let label = "진행 중";
-          if (st.total === 0) {
+          if (st.plannedMin === 0) {
             status = "none";
             label = "계획 없음";
-          } else if (rate < 55 || (avgMin > 0 && st.totalMin < avgMin * 0.55)) {
+          } else if (rate < 45) {
             status = "weak";
             label = "부족";
-          } else if (rate >= 85 && st.totalMin >= avgMin * 0.85) {
+          } else if (rate >= 85) {
             status = "good";
             label = "잘하고 있어요";
           }
@@ -1910,22 +1956,15 @@ create trigger exam_records_updated_at before update on public.exam_records for 
           listEl.innerHTML = `<p class="list-empty" style="margin:0">과목을 추가하면 여기에 공부 현황이 보여요.</p>`;
           return;
         }
-        const cal = ensureExamCalendar(exam);
         listEl.innerHTML = rows.map((row) => {
-          let plannedTotal = 0;
-          for (const date in cal) {
-            for (const p of cal[date] || []) {
-              if (p.subjectId === row.subject.id) plannedTotal += Number(p.durationMin) || 0;
-            }
-          }
+          const tip = row.plannedMin > 0
+            ? `완료 ${row.doneMin}분 / 계획 ${row.plannedMin}분 (${row.rate}%)`
+            : "시험 기간 공부 계획 없음";
           return `
-          <div class="subject-status-row ${row.status}">
-            <div>
-              <p class="subject-status-name">${escapeHtml(row.name)}</p>
-              <p class="subject-status-meta">완료 ${row.totalMin}분 · 계획 ${plannedTotal}분 · 완료율 ${row.rate}%</p>
-            </div>
+          <div class="subject-status-row ${row.status}" title="${escapeHtml(tip)}">
+            <span class="subject-status-name">${escapeHtml(row.name)}</span>
             <span class="subject-status-badge ${row.status}">${row.label}</span>
-            <div class="subject-status-bar ${row.status}"><span style="width:${row.rate}%"></span></div>
+            <div class="subject-status-bar ${row.status}" aria-label="완료율 ${row.rate}%"><span style="width:${row.rate}%"></span></div>
           </div>`;
         }).join("");
       }
@@ -2182,6 +2221,7 @@ create trigger exam_records_updated_at before update on public.exam_records for 
         document.querySelectorAll(".nav-btn").forEach((b) => b.classList.remove("active"));
         $("view" + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add("active");
         document.querySelector(`.nav-btn[data-tab="${tab}"]`).classList.add("active");
+        if (tab === "home") scheduleHeaderReflow();
         if (tab === "stats") renderStatsView();
         if (tab === "list") renderListView();
       }
@@ -2515,10 +2555,6 @@ create trigger exam_records_updated_at before update on public.exam_records for 
         renderExamSettings();
         examSettingsDialog.showModal();
       });
-      $("openCloudSetupBtn").addEventListener("click", () => {
-        settingsDialog.close();
-        openCloudSetupDialog();
-      });
       $("closeCloudSetupBtn").addEventListener("click", () => cloudSetupDialog.close());
       $("copySetupSqlBtn").addEventListener("click", async () => {
         try {
@@ -2597,11 +2633,6 @@ create trigger exam_records_updated_at before update on public.exam_records for 
         return loadMode;
       }
 
-      syncStatusEl?.addEventListener("click", () => {
-        if (cloudReady) return;
-        openCloudSetupDialog("connection-failed", "클라우드 연결을 설정해 주세요.");
-      });
-
       function isStandaloneApp() {
         return window.matchMedia("(display-mode: standalone)").matches
           || window.navigator.standalone === true;
@@ -2665,9 +2696,13 @@ create trigger exam_records_updated_at before update on public.exam_records for 
           console.error(e);
         }
         render();
+        scheduleHeaderReflow();
         showInstallHint();
       }
       boot();
+      window.addEventListener("resize", () => {
+        if (currentTab === "home") scheduleHeaderReflow();
+      });
     </script>
   </body>
 </html>
