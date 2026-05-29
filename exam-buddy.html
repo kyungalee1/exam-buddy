@@ -633,9 +633,19 @@
         text-align: left; font-weight: 800; color: var(--text);
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
+      .list-table th.status-col,
+      .list-table td.status-cell {
+        width: 4.2rem;
+        min-width: 4.2rem;
+        max-width: 4.2rem;
+        white-space: nowrap;
+        padding-left: 4px;
+        padding-right: 4px;
+      }
       .list-table tr:last-child td { border-bottom: none; }
       .list-chip {
-        display: inline-block; border-radius: 999px; padding: 2px 8px; font-weight: 700; font-size: 0.68rem;
+        display: inline-block; border-radius: 999px; padding: 2px 7px; font-weight: 700; font-size: 0.66rem;
+        white-space: nowrap; line-height: 1.25;
         background: #f3f0ff; color: #6d28d9;
       }
       .list-chip.done { background: #d1fae5; color: #065f46; }
@@ -805,18 +815,16 @@
           <div class="list-table-wrap">
             <table class="list-table">
               <colgroup>
-                <col style="width:16%" />
-                <col style="width:16%" />
-                <col style="width:36%" />
-                <col style="width:12%" />
                 <col style="width:20%" />
+                <col style="width:auto" />
+                <col class="status-col" style="width:4.2rem" />
+                <col style="width:18%" />
               </colgroup>
               <thead id="listTableHead">
                 <tr>
                   <th class="sortable" data-sort="subject">과목 <span class="sort-indicator">↕</span></th>
-                  <th class="sortable" data-sort="date">날짜 <span class="sort-indicator">↕</span></th>
                   <th class="sortable" data-sort="task">해야할 공부 <span class="sort-indicator">↕</span></th>
-                  <th class="sortable" data-sort="status">상태 <span class="sort-indicator">↕</span></th>
+                  <th class="sortable status-col" data-sort="status">상태 <span class="sort-indicator">↕</span></th>
                   <th class="sortable" data-sort="durationMin">공부시간 <span class="sort-indicator">↕</span></th>
                 </tr>
               </thead>
@@ -1045,7 +1053,7 @@ create trigger exam_records_updated_at before update on public.exam_records for 
       let statsExamId = "";
       let chartInstances = {};
       let currentTab = "home";
-      let listSortKey = "date";
+      let listSortKey = "subject";
       let listSortDir = "desc";
       let saveToastTimer = null;
 
@@ -2359,7 +2367,6 @@ create trigger exam_records_updated_at before update on public.exam_records for 
               task: p.taskName || "-",
               done: Boolean(p.done),
               durationMin: Number(p.durationMin) || 0,
-              date,
             });
           }
         }
@@ -2381,9 +2388,7 @@ create trigger exam_records_updated_at before update on public.exam_records for 
             bv = b.durationMin;
             return listSortDir === "asc" ? av - bv : bv - av;
           }
-          av = a.date;
-          bv = b.date;
-          const comp = String(av).localeCompare(String(bv), "ko");
+          const comp = String(a.subject).localeCompare(String(b.subject), "ko");
           return listSortDir === "asc" ? comp : -comp;
         });
         const hasData = rows.length > 0;
@@ -2400,9 +2405,8 @@ create trigger exam_records_updated_at before update on public.exam_records for 
           const statusText = r.done ? "완료" : "미완료";
           return `<tr>
             <td class="subject-cell">${escapeHtml(r.subject)}</td>
-            <td>${String(r.date || "").replace(/-/g, "").slice(2)}</td>
             <td class="subject-cell">${escapeHtml(r.task)}</td>
-            <td><span class="list-chip ${statusClass}">${statusText}</span></td>
+            <td class="status-cell"><span class="list-chip ${statusClass}">${statusText}</span></td>
             <td>${r.durationMin}분</td>
           </tr>`;
         }).join("");
@@ -2741,7 +2745,7 @@ create trigger exam_records_updated_at before update on public.exam_records for 
         if (listSortKey === key) listSortDir = listSortDir === "asc" ? "desc" : "asc";
         else {
           listSortKey = key;
-          listSortDir = key === "date" ? "desc" : "asc";
+          listSortDir = "asc";
         }
         renderListView();
       });
