@@ -1,10 +1,10 @@
-const CACHE = "exam-buddy-v2";
+const CACHE = "exam-buddy-v3";
 const SHELL = [
   "/exam-buddy.html",
   "/manifest.webmanifest",
-  "/icon-180.png",
-  "/icon-192.png",
-  "/icon-512.png",
+  "/assets/icon-180.png",
+  "/assets/icon-192.png",
+  "/assets/icon-512.png",
 ];
 
 self.addEventListener("install", (event) => {
